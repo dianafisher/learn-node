@@ -4,7 +4,9 @@ const router = express.Router();
 const storeController = require('../controllers/storeController');
 
 // here we are using route-specific middleware
-router.get('/', storeController.myMiddleware, storeController.homePage);
+// router.get('/', storeController.myMiddleware, storeController.homePage);
+
+router.get('/', storeController.homePage);
 
 // router.get('/', (req, res) => {
 //   const wes = { name: 'Wes', age: 100, cool: true };
