@@ -12,6 +12,10 @@ const Store = mongoose.model('Store');  // we created this in Store.js
 
 exports.homePage = (req, res) => {
   console.log(req.name);
+  // req.flash('error', 'Something Happened');
+  // req.flash('info', 'Something Happened');
+  // req.flash('warning', 'Something Happened');
+  // req.flash('success', 'Something Happened');
   res.render('index');
 }
 
@@ -34,9 +38,11 @@ exports.addStore = (req, res) => {
 
 // don't need try/catch here since this function is wrapped in an errorHandlers function
 exports.createStore = async (req, res) => {
-  const store = new Store(req.body);
-  await store.save();
+  const store = await (new Store(req.body)).save();
+
   console.log('It worked!');
+  // create a flash using connect-flash middleware
+  req.flash('success', `Successfully created ${store.name}.  Care to leave a review?`);
   // redirect to the home page
-  res.redirect('/');
+  res.redirect(`/store/${store.slug}`);
 };
