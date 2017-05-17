@@ -7,7 +7,8 @@ const { catchErrors } = require('../handlers/errorHandlers');  // object destruc
 // here we are using route-specific middleware
 // router.get('/', storeController.myMiddleware, storeController.homePage);
 
-router.get('/', storeController.homePage);
+router.get('/', catchErrors(storeController.getStores));
+router.get('/stores', catchErrors(storeController.getStores));
 router.get('/add', storeController.addStore);
 router.post('/add', catchErrors(storeController.createStore));  // composition (wrapping a function in another function)
 
