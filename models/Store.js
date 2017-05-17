@@ -5,6 +5,7 @@ mongoose.Promise = global.Promise;
 const slug = require('slugs');  // helps us make url friendly names
 
 // create a schema to describe what our data looks like
+// this is a strict schema
 const storeSchema = new mongoose.Schema({
   name: {
     type: String,

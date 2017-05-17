@@ -2,13 +2,14 @@ const express = require('express');
 const router = express.Router();
 // import our controller
 const storeController = require('../controllers/storeController');
+const { catchErrors } = require('../handlers/errorHandlers');  // object destructuring
 
 // here we are using route-specific middleware
 // router.get('/', storeController.myMiddleware, storeController.homePage);
 
 router.get('/', storeController.homePage);
 router.get('/add', storeController.addStore);
-router.post('/add', storeController.createStore);
+router.post('/add', catchErrors(storeController.createStore));  // composition (wrapping a function in another function)
 
 // router.get('/', (req, res) => {
 //   const wes = { name: 'Wes', age: 100, cool: true };
