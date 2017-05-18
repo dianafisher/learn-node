@@ -1,6 +1,22 @@
 const mongoose = require('mongoose');
+const multer = require('multer'); // for file uploads
 // mongoose uses a singleton for our models
 const Store = mongoose.model('Store');  // we created this in Store.js
+const jimp = require('jimp');  // for image resizing
+const uuid = require('uuid');  // provides unique identifier for each file
+
+// keep the uploaded files in memory rather than saving them to disk
+const multerOptions = {
+  storage: multer.memoryStorage(),
+  fileFilter: function(req, file, next) {
+    const isPhoto = file.mimetype.startsWith('image/');
+    if (isPhoto) {
+      next(null, true);
+    } else {
+      next({ message: 'That file type is not allowed!' }, false);
+    }
+  }
+};
 
 // exports.myMiddleware = (req, res, next) => {
 //     req.name = 'Wes';
@@ -22,6 +38,27 @@ exports.homePage = (req, res) => {
 exports.addStore = (req, res) => {
   // render our template
   res.render('editStore', { title: '🐩 Add Store' });
+};
+
+exports.upload = multer(multerOptions).single('photo');
+
+exports.resize = async (req, res, next) => {
+  // check if there are any files to resize
+  if (!req.file) {
+    next(); // skip to the next middleware
+    return;
+  }
+  console.log(req.file);
+  const extension = req.file.mimetype.split('/')[1];
+  // get a unique filename
+  req.body.photo = `${uuid.v4()}.${extension}`;
+  // now we reize
+  const photo = await jimp.read(req.file.buffer);
+  await photo.resize(800, jimp.AUTO);
+  // write the file
+  await photo.write(`./public/uploads/${req.body.photo}`);
+  // once we have written the photo to our filesystem, keep going!
+  next();
 };
 
 // // save to the database using async/await
@@ -65,6 +102,8 @@ exports.editStore = async (req, res) => {
 }
 
 exports.updateStore = async (req, res) => {
+  // set the location data to be a point
+  req.body.location.type = 'Point';
   // 1. Find and update the store
   const store = await Store.findOneAndUpdate({ _id: req.params.id }, req.body, {
     new: true, // return the new store instead of the original
