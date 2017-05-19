@@ -9,5 +9,5 @@ mixin storeCard(store = {})
       h2.title
         a(href=`/store/${store.slug}`) #{store.name}
     .store__details
-      // trim to 25 words
+      //- trim to 25 words
       p= store.description.split(' ').slice(0, 25).join(' ')  
