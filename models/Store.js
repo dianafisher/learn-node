@@ -58,4 +58,16 @@ storeSchema.pre('save', async function(next) {
   next();
 });
 
+// add a method to the storeSchema
+// uses mongodb aggregate operators, $unwind, $group, and $sort
+// https://docs.mongodb.com/manual/reference/operator/aggregation/
+storeSchema.statics.getTagsList = function() {
+  // 'this' is our model
+  return this.aggregate([
+    { $unwind: '$tags' },
+    { $group: { _id: '$tags', count: { $sum: 1 } }},
+    { $sort: { count: -1 }}
+  ]);
+}
+
 module.exports = mongoose.model('Store', storeSchema);
