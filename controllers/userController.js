@@ -50,6 +50,26 @@ exports.register = async (req, res, next) => {
   // });
   // bind to the User object
   const registerWithPromise = promisify(User.register, User);
-  await registerWithPromise(user, req.body.password);  // stores password as a hash in the db.  
+  await registerWithPromise(user, req.body.password);  // stores password as a hash in the db.
   next();  // pass to authcontroller
+};
+
+exports.account = (req, res) => {
+  res.render('account', { title: 'Edit Your Accout' })
+}
+
+exports.updateAccount = async (req, res) => {
+  const updates = {
+      name: req.body.name,
+      email: req.body.email
+  };
+
+  const user = await User.findOneAndUpdate(
+    { _id: req.user._id },
+    { $set: updates },
+    { new: true, runValidators: true, context: 'query' }
+  );
+
+  req.flash('success', 'Updated profile successfully!');
+  res.redirect('back');  // redirect to the url they came from
 };
