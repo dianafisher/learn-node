@@ -3,6 +3,7 @@ const router = express.Router();
 // import our controller
 const storeController = require('../controllers/storeController');
 const userController = require('../controllers/userController');
+const authController = require('../controllers/authController');
 const { catchErrors } = require('../handlers/errorHandlers');  // object destructuring
 
 // here we are using route-specific middleware
@@ -56,7 +57,13 @@ router.get('/tags/:tag', catchErrors(storeController.getStoresByTag));
 router.get('/login', userController.loginForm);
 
 router.get('/register', userController.registerForm);
-router.post('/register', userController.validateRegister
+// 1. validate registration data
+// 2. register the user
+// 3. log the user in
+router.post('/register',
+  userController.validateRegister,
+  userController.register,
+  authController.login
 );
 
 module.exports = router;

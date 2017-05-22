@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
+const promisify = require('es6-promisify');
+const User = mongoose.model('User');
 
 exports.loginForm = (req, res) => {
   res.render('login', { title: 'Login' });
@@ -36,4 +38,18 @@ exports.validateRegister = (req, res, next) => {
     return;
   }
   next();  // no errors.
+};
+
+// middleware to handle user registration
+exports.register = async (req, res, next) => {
+  // create a new user
+  const user = new User({ email: req.body.email, name: req.body.name});
+  // the register method does not return a Promise, so we use promisify
+  // User.register(user, req.body.password, function(err, user) {
+  //
+  // });
+  // bind to the User object
+  const registerWithPromise = promisify(User.register, User);
+  await registerWithPromise(user, req.body.password);  // stores password as a hash in the db.  
+  next();  // pass to authcontroller
 };
