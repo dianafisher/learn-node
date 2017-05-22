@@ -32,8 +32,8 @@ exports.validateRegister = (req, res, next) => {
       title: 'Register',
       body: req.body,
       flashes: req.flash()
-      return;
     })
+    return;
   }
   next();  // no errors.
 };
