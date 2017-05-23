@@ -129,7 +129,7 @@ exports.getStoreBySlug = async (req, res, next) => {
     return next();
   }
   res.render('store', { store: store, title: store.name });
-}
+};
 
 exports.getStoresByTag = async (req, res) => {
   // const tags = await Store.getTagsList();
@@ -146,3 +146,26 @@ exports.getStoresByTag = async (req, res) => {
   // res.json(stores);
   res.render('tag', { tags: tags, title: 'Tags', tag, stores });
 };
+
+exports.searchStores = async (req, res) => {
+  // res.json(req.query);
+  const stores = await Store
+  // find stores that match
+  .find({
+    $text: {
+      $search: req.query.q
+    }
+  }, {
+    score: {
+      $meta: 'textScore'
+    }
+  })
+  // then sort them by how well they match the query
+  .sort({
+    score: { $meta: 'textScore' }
+  })
+  // limit to 5 results
+  .limit(5);
+
+  res.json(stores);
+}
