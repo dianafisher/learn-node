@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const multer = require('multer'); // for file uploads
 // mongoose uses a singleton for our models
 const Store = mongoose.model('Store');  // we created this in Store.js
+const User = mongoose.model('User');
 const jimp = require('jimp');  // for image resizing
 const uuid = require('uuid');  // provides unique identifier for each file
 
@@ -192,4 +193,21 @@ exports.mapStores = async (req, res) => {
 
 exports.mapPage = (req, res) => {
   res.render('map', { title: 'Map' });
+}
+
+// toggles heart
+exports.heartStore = async (req, res) => {
+
+  const hearts = req.user.hearts.map(obj => {
+    return obj.toString();
+  });
+
+  const operator = hearts.includes(req.params.id) ? '$pull' : '$addToSet';
+  
+  const user = await User
+    .findByIdAndUpdate(req.user._id,
+      { [operator]: { hearts: req.params.id }},
+      { new: true }
+    )
+  res.json(user);
 }
