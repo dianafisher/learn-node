@@ -89,6 +89,9 @@ router.post('/account/reset/:token',
   catchErrors(authController.update)
 );
 
+// Map page
+router.get('/map', storeController.mapPage);
+
 /*
 * API Endpoints
 */
