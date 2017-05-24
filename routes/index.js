@@ -92,6 +92,12 @@ router.post('/account/reset/:token',
 // Map page
 router.get('/map', storeController.mapPage);
 
+// Hearts - get the hearts page if we have a user logged in
+router.get('/hearts',
+  authController.isLoggedIn,
+  catchErrors(storeController.getHearts)
+);
+
 /*
 * API Endpoints
 */
