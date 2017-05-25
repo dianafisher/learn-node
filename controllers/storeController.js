@@ -87,11 +87,37 @@ exports.createStore = async (req, res) => {
   res.redirect(`/store/${store.slug}`);
 };
 
+// get stores with pagination
 exports.getStores = async (req, res) => {
   // 1. Query the database for the list of all stores.
-  const stores = await Store.find();  // .find() returns a Promise
+  // const stores = await Store.find();  // .find() returns a Promise
+  const page = req.params.page || 1;
+  const limit = 4; // return 4 stores per page
+  const skip = (page * limit) - limit;
+  // page 1 => 1*4 - 4 = 4-4 = 0
+  // page 2 => 2*4 - 4 = 8-4 = 4
+  const storesPromise = Store
+    .find()
+    .skip(skip)
+    .limit(limit)
+    .sort({ created: 'desc' });
   // console.log(stores);
-  res.render('stores', { title: 'Stores', stores });
+
+  // count the number of store records in the database
+  const countPromise = Store.count();
+
+  // wait for both promises to return
+  const [stores, count] = await Promise.all([storesPromise, countPromise]);
+
+  // calculate the number of pages we have
+  const pages = Math.ceil(count / limit);
+  if (!stores.length && skip) {
+    // redirect to the last page
+    req.flash('info', `Hey!  You asked for page ${page}. But that doesn't exist, so I put you on page ${pages}`);
+    res.redirect(`/stores/page/${pages}`);
+    return;
+  }
+  res.render('stores', { title: 'Stores', stores, page, pages, count });
 };
 
 const confirmOwner = (store, user) => {
