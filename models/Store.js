@@ -41,7 +41,10 @@ const storeSchema = new mongoose.Schema({
     type: mongoose.Schema.ObjectId,
     ref: 'User',
     required: 'You must supply an author.'
-  }
+  },
+}, {
+  toJSON: { virtuals: true },
+  toObject: { virtuals: true }
 });
 
 // Define our indexes
@@ -83,6 +86,14 @@ storeSchema.statics.getTagsList = function() {
     { $group: { _id: '$tags', count: { $sum: 1 } }},
     { $sort: { count: -1 }}
   ]);
-}
+};
+
+// create a virtual field
+// find reviews where the store's id is equal to the review's store id property.
+storeSchema.virtual('reviews', {
+  ref: 'Review',
+  localField: '_id',
+  foreignField: 'store'
+});
 
 module.exports = mongoose.model('Store', storeSchema);
